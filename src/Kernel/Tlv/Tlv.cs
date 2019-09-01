@@ -35,6 +35,14 @@ namespace Kernel.Tlv
 
             return data.ToArray();
         }
+
+        public void CopyFrom(Tlv other)
+        {
+            foreach (var item in other)
+            {
+                this[item.Key] = item.Value;
+            }
+        }
        
     }
 }
