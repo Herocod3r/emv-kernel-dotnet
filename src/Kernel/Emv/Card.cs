@@ -58,6 +58,16 @@ namespace Kernel.Emv
 
             return response;
         }
+
+        public Task<APDUResponse> SelectAsync(byte[] nameAid,bool first)
+        {
+            byte p2 = first ? (byte)0x00 : (byte)2;
+            return this.SendApduAsync(new APDUCommand{Instruction = 0xA4,Parameter1 = 0x04,Parameter2 = p2,Data = nameAid});
+        }
+
+
+        public Task<APDUResponse> ReadAsync(int sfi, int record) => SendApduAsync(new APDUCommand{Instruction = 0xB2,Parameter1 = (byte)record,Parameter2 = (byte)(((byte)sfi<<3)|0x4)});
+        
         
 
         public void Dispose()
