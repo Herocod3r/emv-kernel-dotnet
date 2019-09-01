@@ -19,12 +19,14 @@ namespace Kernel.Emv
         private async Task<APDUResponse> SendRawApduAsync(APDUCommand command)
         {
             var commandToSend = new List<byte> {command.Class,command.Instruction,command.Parameter1,command.Parameter2 };
+            
             if (command.Data != null && command.Data.Length > 0)
             {
+                commandToSend.Add( (byte) command.Data.Length);
                 commandToSend.AddRange(command.Data);
-                commandToSend.Add(command.ExpectedLength == 0x00 ? (byte) command.Data.Length : command.ExpectedLength);
             }
-            else commandToSend.Add(command.ExpectedLength);
+            
+            commandToSend.Add(command.ExpectedLength);
 
             byte[] response = null;
             try

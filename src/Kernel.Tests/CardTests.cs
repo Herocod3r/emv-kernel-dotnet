@@ -15,9 +15,9 @@ namespace Kernel.Tests
             var mock = new Mock<ICardChip>();
             mock.Setup(x => x.CardId).Returns(() => new byte[]{0x00,0x00,0x10,0x56});
             mock.Setup(x => x.TransmitCommandAsync(It.IsAny<byte[]>())).Returns(Task.FromResult(new byte[]{0x90,0x00}));
-            mock.Setup(x => x.TransmitCommandAsync(It.Is<byte[]>(bytes => bytes.Length == 7)))
+            mock.Setup(x => x.TransmitCommandAsync(It.Is<byte[]>(bytes => bytes.Length == 8)))
                 .Returns(Task.FromResult(new byte[] {0x00, 0x00, 0x90, 0x00}));
-            mock.Setup(x=>x.TransmitCommandAsync(It.Is<byte[]>(bytes => bytes.Length == 6))).Returns(Task.FromResult<byte[]>(null));
+            mock.Setup(x=>x.TransmitCommandAsync(It.Is<byte[]>(bytes => bytes.Length == 7))).Returns(Task.FromResult<byte[]>(null));
             mockedCardChip = mock.Object;
         }
         
