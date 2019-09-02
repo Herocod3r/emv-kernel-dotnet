@@ -2,20 +2,19 @@ using System;
 
 namespace Kernel.Tlv
 {
-    public static class TlvSerializer
+    public class TlvPropertyAttribute : Attribute
     {
-
-        public static T Deserialize<T>(Tlv value) where T:Object
+        public TlvPropertyAttribute(string tag)
         {
-            return null;
+            this.Tag = Convert.ToInt32(tag, 16);
         }
 
+        public int Tag { get;}
+        public DecodeOption DecodeOption { get; set; }
+    }
 
-
-        public static Tlv Serialize(object value)
-        {
-            
-        }
-        
+    public enum DecodeOption
+    {
+        Default,Hex,Ascii
     }
 }

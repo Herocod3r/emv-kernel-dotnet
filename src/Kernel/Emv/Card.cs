@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Kernel.Emv.Apdu;
+using Kernel.Tlv;
 
 namespace Kernel.Emv
 {
@@ -67,6 +68,25 @@ namespace Kernel.Emv
 
 
         public Task<APDUResponse> ReadAsync(int sfi, int record) => SendApduAsync(new APDUCommand{Instruction = 0xB2,Parameter1 = (byte)record,Parameter2 = (byte)(((byte)sfi<<3)|0x4)});
+
+        public async Task<Application> SelectApplicationAsync(byte[] name,bool first)
+        {
+            var rsp = await SelectAsync(name, first);
+            if (rsp.SW1 == 0x6A && rsp.SW2 == 0x82) return null;
+            if (rsp.SW1 != 0x90 && rsp.SW2 != 0x00) throw new InvalidOperationException("Unable to select application");
+
+            var tlv = new Tlv.Tlv(rsp.Body);
+            try
+            {
+               return TlvSerializer.Deserialize<CardApplication>(tlv).App;
+
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Error decoding Tlv");
+            }
+
+        }
         
         
 
@@ -75,5 +95,12 @@ namespace Kernel.Emv
             cardChip.Dispose();
         }
         
+    }
+
+
+    public class CardApplication
+    {
+        [TlvProperty("0x6f")]
+        public Application App { get; set; }
     }
 }

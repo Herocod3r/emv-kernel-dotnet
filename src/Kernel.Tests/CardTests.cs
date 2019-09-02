@@ -52,5 +52,8 @@ namespace Kernel.Tests
             Assert.ThrowsAsync<APDUException>(async ()=> await card.SendApduAsync(new APDUCommand {Instruction = 0xA4,Data = new byte[]{0x10}}));
 
         }
+        
+        
+        
     }
 }

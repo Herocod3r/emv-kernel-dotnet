@@ -7,6 +7,15 @@ namespace Kernel.Tlv
 {
     public class Tlv : Dictionary<int,byte[]>
     {
+        public Tlv()
+        {
+            
+        }
+
+        public Tlv(byte[] data)
+        {
+            this.Decode(data);
+        }
         public void Decode(byte[] data)
         {
             for (int i = 0; i < data.Length;)

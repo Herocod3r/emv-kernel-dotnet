@@ -25,7 +25,9 @@ namespace Kernel.Tlv
             if(((tag >> 8)&0x1F) == 0) return new byte[]{(byte)tag};
             return new byte[]{(byte)(tag >> 8),(byte)(tag & 0xFF)};
         }
-
+        
+        
+        
         public static byte[] EncodeLength(ulong length)
         {
             if(length <= 0x7F) return new byte[]{(byte)length};
@@ -69,6 +71,8 @@ namespace Kernel.Tlv
 
             return val;
         }
+
+       
         public static (int, int) DecodeTag(byte[] toParse)
         {
             if ((toParse[0] & 0x1F) != 0x1F) return ((int) toParse[0], 1);
