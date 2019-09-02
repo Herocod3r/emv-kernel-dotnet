@@ -21,6 +21,8 @@ namespace Kernel.Emv
         public int Priority { get; set; }
         [TlvProperty("5f2d")]
         public string LanguagePreference { get; set; }
+        [TlvProperty("9F38")]
+        private DataObjectList ProcessingObjects { get; set; }
         [TlvProperty("bf0c")]
         public byte[] DiscretionaryData { get; set; }
     }

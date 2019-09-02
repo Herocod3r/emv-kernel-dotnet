@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Kernel.Emv.Apdu;
 using Kernel.Tlv;
+using Kernel.Utils;
 
 namespace Kernel.Emv
 {
@@ -78,7 +79,7 @@ namespace Kernel.Emv
             var tlv = new Tlv.Tlv(rsp.Body);
             try
             {
-               return TlvSerializer.Deserialize<CardApplication>(tlv).App;
+               return TlvSerializer.Deserialize<Application>(tlv,"0x6f");
 
             }
             catch (Exception e)
@@ -87,9 +88,68 @@ namespace Kernel.Emv
             }
 
         }
-        
-        
 
+        public async Task<ProcessingOptions> GetProcessingAsync(Tlv.Tlv pdol)
+        {
+            var pdolData = pdol.Encode();
+            var res = await SendApduAsync(new APDUCommand
+            {
+                Class = 0x80,Instruction = 0xA8,Data = pdolData
+            });
+            var body = new Tlv.Tlv(res.Body);
+            if (body.ContainsKey(Convert.ToInt32("0x77")))return TlvSerializer.Deserialize<ProcessingOptions>(body, "0x77");
+            
+            if(!body.TryGetValue(0x80,out byte[] raw)) throw new InvalidOperationException("Invalid message");
+
+            var aip = BerHelpers.DecodeUint(Helpers.ArraySlice(raw,0, 2));
+            var po = new ProcessingOptions {ApplicationInterchangeProfile = (int) aip};
+            po.ApplicationFileList = new ApplicationFileList();;
+            po.ApplicationFileList.Decode(Helpers.ArraySlice(raw,2, raw.Length));
+
+            return po;
+
+        }
+
+
+        public async Task<bool> VerifyPinAsync(string pin)
+        {
+            var pinBlock = new byte[8];
+            if(pin.Length < 4 || pin.Length > 12) throw new ArgumentException("Pin length is incorrect");
+            pinBlock[0] = (byte)((1 << 5) | pin.Length);
+            for (int i = 0; i < 12; i++)
+            {
+                var digit = (byte) 0;
+                if (i < pin.Length) digit = (byte) (pin[i] - '0');
+                else digit = 0xF;
+                var offset = i / 2;
+                var nibble = 1 - (i % 2);
+                var shift = nibble * 4;
+                pinBlock[1 + offset] |= (byte)(digit << shift);
+            }
+
+            pinBlock[7] = 0xFF;
+            var rsp = await SendApduAsync(new APDUCommand
+            {
+                Instruction = 0x20,Parameter2 = 1<<7,Data = pinBlock
+            });
+            return rsp.SW1 == 0x90 && rsp.SW2 == 0x00;
+        }
+
+        public async Task<GeneratedAC> GenerateAcAsync(int kind,Tlv.Tlv dol)
+        {
+            var rsp = await SendApduAsync(new APDUCommand
+            {
+                Class = 0x80,Instruction = 0xAE,Parameter1 = (byte)kind,Data = dol.Encode()
+            });
+            
+            if(rsp.SW1 != 0x90 && rsp.SW2 != 0x00) throw new InvalidOperationException("An error occurred processing transaction");
+            var body = new Tlv.Tlv(rsp.Body);
+            if(!body.ContainsKey(0x77)) throw new InvalidOperationException("An error occurred processing transaction");
+
+            return TlvSerializer.Deserialize<GeneratedAC>(new Tlv.Tlv(body[0x77]));
+            
+        }
+        
         public void Dispose()
         {
             cardChip.Dispose();
@@ -98,9 +158,5 @@ namespace Kernel.Emv
     }
 
 
-    public class CardApplication
-    {
-        [TlvProperty("0x6f")]
-        public Application App { get; set; }
-    }
+  
 }

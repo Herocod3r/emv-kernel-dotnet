@@ -9,8 +9,9 @@ namespace Kernel.Tlv
     public static class TlvSerializer
     {
 
-        public static T Deserialize<T>(Tlv value) where T:class
+        public static T Deserialize<T>(Tlv value,string tag = null) where T:class
         {
+            if(tag != null && value.ContainsKey(Convert.ToInt32(tag, 16))) value = new Tlv(value[Convert.ToInt32(tag, 16)]);
             var obj = Deserialize(value,typeof(T));
             return (T) obj;
         }
@@ -34,7 +35,7 @@ namespace Kernel.Tlv
         {
             if(!property.CanWrite) return;
             var attribute = property.GetCustomAttribute<TlvPropertyAttribute>();
-            if(!tlv.TryGetValue(attribute.Tag,out byte[] tlvValue)) return;
+            if(!tlv.TryGetValue(attribute.Tag,out byte[] tlvValue) && property.PropertyType != typeof(Tlv)) return;
             switch (property.PropertyType)
             {
                 case {} _ when property.PropertyType == typeof(Tlv):

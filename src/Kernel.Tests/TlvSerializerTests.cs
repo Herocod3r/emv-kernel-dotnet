@@ -16,7 +16,7 @@ namespace Kernel.Tests
             var tlvBytes = Helpers.HexStringToByteArray("6F1A840E315041592E5359532E4444463031A5088801015F2D02656E");
             var tlv = new Tlv.Tlv(tlvBytes);
 
-            var result = TlvSerializer.Deserialize<CardApplication>(tlv).App;
+            var result = TlvSerializer.Deserialize<Application>(tlv,"0x6f");
             Assert.NotNull(result);
         }
 
@@ -26,11 +26,11 @@ namespace Kernel.Tests
             var tlvBytes = Helpers.HexStringToByteArray("6F1A840E315041592E5359532E4444463031A5088801015F2D02656E");
             var tlv = new Tlv.Tlv(tlvBytes);
 
-            var result = TlvSerializer.Deserialize<CardApplication>(tlv);
+            var result = TlvSerializer.Deserialize<Application>(tlv,"0x6f");
             Assert.NotNull(result);
 
             var tlv2 = TlvSerializer.Serialize(result);
-            var result2 = TlvSerializer.Deserialize<CardApplication>(tlv2);
+            var result2 = TlvSerializer.Deserialize<Application>(tlv2,"0x6f");
             Assert.Equal( JsonSerializer.Serialize(result),JsonSerializer.Serialize(result2));
         }
         
