@@ -22,7 +22,7 @@ namespace Kernel.Emv
         [TlvProperty("5f2d")]
         public string LanguagePreference { get; set; }
         [TlvProperty("9F38")]
-        private DataObjectList ProcessingObjects { get; set; }
+        public DataObjectList ProcessingObjects { get; set; }
         [TlvProperty("bf0c")]
         public byte[] DiscretionaryData { get; set; }
     }

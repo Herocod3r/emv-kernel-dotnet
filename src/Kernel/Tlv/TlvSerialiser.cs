@@ -9,9 +9,9 @@ namespace Kernel.Tlv
     public static class TlvSerializer
     {
 
-        public static T Deserialize<T>(Tlv value,string tag = null) where T:class
+        public static T Deserialize<T>(Tlv value,int tag = 0) where T:class
         {
-            if(tag != null && value.ContainsKey(Convert.ToInt32(tag, 16))) value = new Tlv(value[Convert.ToInt32(tag, 16)]);
+            if(tag != 0) value = new Tlv(value[tag]);
             var obj = Deserialize(value,typeof(T));
             return (T) obj;
         }

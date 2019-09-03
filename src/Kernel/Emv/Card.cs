@@ -74,12 +74,12 @@ namespace Kernel.Emv
         {
             var rsp = await SelectAsync(name, first);
             if (rsp.SW1 == 0x6A && rsp.SW2 == 0x82) return null;
-            if (rsp.SW1 != 0x90 && rsp.SW2 != 0x00) throw new InvalidOperationException("Unable to select application");
+            if (rsp.SW1 != 0x90 && rsp.SW2 != 0x00) return null;
 
             var tlv = new Tlv.Tlv(rsp.Body);
             try
             {
-               return TlvSerializer.Deserialize<Application>(tlv,"0x6f");
+               return TlvSerializer.Deserialize<Application>(tlv,0x6f);
 
             }
             catch (Exception e)
@@ -97,7 +97,7 @@ namespace Kernel.Emv
                 Class = 0x80,Instruction = 0xA8,Data = pdolData
             });
             var body = new Tlv.Tlv(res.Body);
-            if (body.ContainsKey(Convert.ToInt32("0x77")))return TlvSerializer.Deserialize<ProcessingOptions>(body, "0x77");
+            if (body.ContainsKey(0x77))return TlvSerializer.Deserialize<ProcessingOptions>(body, 0x77);
             
             if(!body.TryGetValue(0x80,out byte[] raw)) throw new InvalidOperationException("Invalid message");
 
@@ -146,7 +146,7 @@ namespace Kernel.Emv
             var body = new Tlv.Tlv(rsp.Body);
             if(!body.ContainsKey(0x77)) throw new InvalidOperationException("An error occurred processing transaction");
 
-            return TlvSerializer.Deserialize<GeneratedAC>(new Tlv.Tlv(body[0x77]));
+            return TlvSerializer.Deserialize<GeneratedAC>(body,0x77);
             
         }
         
