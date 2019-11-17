@@ -68,7 +68,7 @@ namespace Kernel.Emv
         }
 
 
-        public Task<APDUResponse> ReadAsync(int sfi, int record) => SendApduAsync(new APDUCommand{Instruction = 0xB2,Parameter1 = (byte)record,Parameter2 = (byte)(((byte)sfi<<3)|0x4)});
+        public Task<APDUResponse> ReadAsync(int sfi, int record) => SendApduAsync(new APDUCommand{Instruction = 0xB2,Parameter1 = (byte)record,Parameter2 = (byte)((sfi<<3)|0x4)});
 
         public async Task<Application> SelectApplicationAsync(byte[] name,bool first)
         {
